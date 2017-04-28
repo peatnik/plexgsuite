@@ -3,7 +3,7 @@
 # Author: Jake Tame
 # Email: jaketame@me.com
 # Desc: Disk monitor that checks to see that disk usage is above a set threshold and upload to GCD via RCLONE
-# Desc: To be run via service 
+# Desc: To be run via service
 
 import json, shutil, logging, time, subprocess, os
 from shutil import disk_usage
@@ -26,6 +26,21 @@ REMOTE_NAME = CONFIG['plexgcd']['remote_name']
 # Set logging and default to info
 logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO,filename=LOG_FILE,format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+def logging_call(popenargs, **kwargs):
+    process = subprocess.Popen(popenargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    def check_output():
+           while True:
+                output = process.stdout.readline().decode()
+                if output:
+                    logger.log(logging.INFO, output)
+                else:
+                    break
+
+    # keep checking stdout/stderr until the child exits
+    while process.poll() is None:
+        check_output()
 
 def check_usage():
     # Return percentage of disk usage of mountpoint in config file
@@ -79,8 +94,7 @@ def rclone_upload():
             if not os.path.isdir(os.path.join(LOCAL_DIR, dir)):
                 continue
             logging.info('Uploading directory : ' + dir)
-#            command = [RCLONE, 'move', '--dry-run', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/']
-            run_command([RCLONE, 'move', '--dry-run', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/'])
+        logging_call([RCLONE, 'move', '--dry-run', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + dir + '/', REMOTE_NAME  + dir + '/'])
 
 def main():
     logging.info("Disk monitor started")
@@ -115,10 +129,10 @@ while True:
             START = datetime.strptime(START, '%H:%M')
             NOW = datetime.strptime(TIME, '%H:%M')
             SLEEP_TIME = START - NOW
-            logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) ) 
+            logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) )
             logging.debug("Sleeping time is %s and %s in seconds" % (SLEEP_TIME, SLEEP_TIME.seconds) )
             # Pause NZBGet to avoid disk filling up and leave paused to get best upload speed, will resume post upload
-            pause_nzbget() 
+            pause_nzbget()
             # Sleep time
             time.sleep(SLEEP_TIME.seconds)
 
@@ -126,7 +140,7 @@ while True:
         # Looping until used percentage is above threshold
         logging.info("Path %s currently at %s%% free" % (DISK_PATH, USED_PERC) )
         logging.debug("Sleeping for 60 seconds")
-        # Sleep time loop for 60 seconds 
+        # Sleep time loop for 60 seconds
         time.sleep(60)
 
 if __name__ == "__main__":
