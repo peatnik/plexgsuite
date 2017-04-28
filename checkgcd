@@ -1,0 +1,46 @@
+#!/bin/bash
+# Mount GCD using rclone
+# Import common functions
+source /opt/plexgcd/plexgcd.func
+# Import config
+source /opt/plexgcd/plexgcd.conf
+
+check_mount() {
+# Check gcd rclone mount, remount if offline, check decrypt path
+if mountpoint -q $GCDCRYPT; then
+  log "Mount $GCDCRYPT is already mounted, exiting."
+  exit 0
+  else
+		log "Mount $GCDCRYPT is offline, remounting"
+		mount_gcdcrypt
+fi
+}
+
+mount_gcdcrypt() {
+# Mount rclone gcd mount
+$rclone mount \
+    --read-only \
+    --allow-non-empty \
+    --allow-other \
+    --buffer-size 500M \
+    --max-read-ahead 10M \
+    $REMOTENAME: $GCDCRYPT &
+  if [ $? -eq 0 ]; then
+    log "Mounted $GCDCRYPT successfully."
+  else
+    log "Mount of $GCDCRYPT failed"
+    exit 1
+  fi
+}
+
+main() {
+    lock $PROGNAME \
+        || eexit "Only one instance of $PROGNAME can run at one time."
+		
+		logsetup
+		check_mount
+	rm /opt/plexgcd/checkgcd.lock
+}
+
+# Execute main function, will provide logging
+main

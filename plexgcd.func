@@ -1,0 +1,55 @@
+#!/bin/bash
+# Common functions for use with Plex Google Drive Encryption Mounts
+
+logsetup() {  
+    TMP=$(tail -n $LOGFILE 2>/dev/null) && echo "${TMP}" >> $LOGFILE
+    exec > >(tee -a $LOGFILE)
+    exec 2>&1
+}
+
+log() {  
+    echo "[$(date +"%Y_%m_%d %H:%M:%S")]: $*"
+}
+
+lock() {
+    local prefix=`basename $0`
+    local fd=${2:-$LOCK_FD}
+    local lock_file=$LOCKFILE_DIR/$prefix.lock
+
+    # create lock file
+    eval "exec $fd>$lock_file"
+
+    # acquier the lock
+    flock -n $fd \
+        && return 0 \
+        || return 1
+}
+
+eexit() {
+    local error_str="$@"
+
+    echo $error_str
+    exit 1
+}
+
+pause_nzbget() {
+    #Pause NZBGet from downloading to avoid writing while upload
+    log "Pausing NZBGet"
+    $nzbget -P
+    if [ $? -eq 0 ]; then
+      log "NZBGet is now paused"
+    else
+      log "NZBGet pause failed"
+    fi
+}
+
+resume_nzbget() {
+    #Resume NZBGet
+    log "Resume NZBGet"
+    $nzbget -U
+    if [ $? -eq 0 ]; then
+      log "NZBGet has been resumed"
+    else
+      log "NZBGet pause failed"
+    fi  
+}

@@ -1,0 +1,88 @@
+#!/bin/bash
+# Mount GCD using rclone
+# Import common functions
+source /opt/plexgcd/plexgcd.func
+# Import functions
+source /opt/plexgcd/plexgcd.conf
+
+# Mount Functions
+
+unmount_mediadir() {
+# Unmount the plex gcd mounts
+if mountpoint -q $MEDIADIR; then 
+	log "Unmounting $MEDIADIR"
+	sudo umount $MEDIADIR
+	if [ $? -eq 0 ]; then
+ 		log "Failed to unmount $MEDIADIR... Retrying with force"
+ 	else
+		sudo umount -f $MEDIADIR
+ 		log "$MEDIADIR removed with force"
+ 	fi
+else
+	log "$MEDIADIR already unmountpoint"
+fi
+}
+unmount_gcdcrypt() {
+if mountpoint -q $GCDCRYPT; then
+  log "Unmounting $GCDCRYPT"
+  $fusermount -u $GCDCRYPT
+  if [ $? -eq 0 ]; then
+    log "Failed to unmount $GCDCRYPT... Retrying with force"
+  else
+    $fusermount -uz $GCDCRYPT
+    log "$GCDCRYPT removed with force"
+  fi
+else
+  log "$GCDCRYPT already unmountpoint"
+fi
+}
+
+mount_gcdcrypt() {
+# Mount the gcd via rclone to encrypted path, then run encfs to decrypt
+log "Mounting $GCDCRYPT"
+$rclone mount \
+    --read-only \
+    --allow-non-empty \
+    --allow-other \
+    --max-read-ahead 10M \
+    --buffer-size 500M \
+    $REMOTENAME: $GCDCRYPT &
+	if [ $? -eq 0 ]; then
+		log "Mounted $GCDCRYPT successfully."
+	else
+		log "Mount of $GCDCRYPT failed"
+		exit 1
+	fi
+	
+}
+
+mount_mediadir() {
+# Mount the unionfs
+$unionfs -o large_read,big_writes,splice_move,splice_read,statfs_omit_ro,atomic_o_trunc,cow,auto_cache,allow_other -o uid=1001 -o gid=1001 $LOCALDIR=RW:$GCDCRYPT=RO $MEDIADIR
+#sudo mount -t overlay -o lowerdir=/data/.gsuite-crypt/,upperdir=/data/.local/,workdir=/data/.work/ overlay /data/media/
+if [ $? -eq 0 ]; then
+  log "Mounted $MEDIADIR successfully"
+  else
+  log "Failed to mount unionfs of $LOCALDIR and $GCDCRYPT. please retry"
+fi
+
+}
+
+main() {
+    lock $PROGNAME \
+        || eexit "Only one instance of $PROGNAME can run at one time."
+		
+		logsetup
+		#Unmounts
+		unmount_mediadir
+		unmount_gcdcrypt
+		#Mounts
+		mount_gcdcrypt
+    sleep 10
+		mount_mediadir
+
+	rm /opt/plexgcd/mountgcd.lock
+}
+
+# Execute main function, will provide logging
+main

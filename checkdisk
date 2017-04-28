@@ -1,0 +1,24 @@
+#!/bin/bash
+# It will send an email to $ADMIN, if the (free available) percentage
+# of space is >= 90%
+THRESHOLD=85
+PATHS=/
+AWK=/bin/awk
+DU=`/usr/bin/du -ks`
+GREP=/bin/grep
+SED=/bin/sed
+CAT=/bin/cat
+
+for path in $PATHS
+do
+## Validate the Percentage of Disk space ##
+DISK_AVAIL=`/bin/df -k / | grep -v Filesystem |awk '{print $5}' |sed 's/%//g'`
+if [ $DISK_AVAIL -ge $THRESHOLD ]
+then
+  echo "Disk space is low $DISK_AVAIL % on $PATHS \n\n" >> /opt/plexgcd/logs/disk_check.log 
+  echo "Running upload-cloud to reduce disk space \n\n" >> /opt/plexgcd/logs/disk_check.log
+  /opt/plexgcd/uploadgcd
+else
+  echo "Disk is currently $DISK_AVAIL % on $PATHS" >> /opt/plexgcd/logs/disk_check.log
+fi
+done
