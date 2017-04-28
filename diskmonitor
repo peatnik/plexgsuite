@@ -94,7 +94,7 @@ def rclone_upload():
             if not os.path.isdir(os.path.join(LOCAL_DIR, dir)):
                 continue
             logging.info('Uploading directory : ' + dir)
-        logging_call([RCLONE, 'move', '--dry-run', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + dir + '/', REMOTE_NAME  + dir + '/'])
+        logging_call([RCLONE, 'move', '--dry-run', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME  + dir + '/'])
 
 def main():
     logging.info("Disk monitor started")
