@@ -7,10 +7,10 @@ This is using rclone solely for mount and upload for GDRIVE. I've not been banne
 ## My Setup
 
 ```
-1) Sonarr/Radarr/NZBGET
-2) Local Disk which keeps data until 80% full
-3) Sonarr/Radarr notifications to update Plex (This uses the local disk copy via the UnionFS/OverlayFS mount, thus avoids bans)
-4) Once disk reaches 80% the diskmonitor script will upload via rclone move to gdrive
+* Sonarr/Radarr/NZBGET
+* Local Disk which keeps data until 80% full
+* Sonarr/Radarr notifications to update Plex (This uses the local disk copy via the UnionFS/OverlayFS mount, thus avoids bans)
+* Once disk reaches 80% the diskmonitor script will upload via rclone move to gdrive
 ```
 
 ### Prerequisites
