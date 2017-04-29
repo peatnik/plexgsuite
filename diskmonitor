@@ -93,12 +93,12 @@ def check_time():
 
 def rclone_upload():
 # For each directory under your LOCAL_DIR we are going to upload, will exclude hidden folders
-for dir in os.listdir(LOCAL_DIR):
-    if not dir.startswith('.'):s
-        if not os.path.isdir(os.path.join(LOCAL_DIR, dir)):
+    for dir in os.listdir(LOCAL_DIR):
+        if not dir.startswith('.'):s
+            if not os.path.isdir(os.path.join(LOCAL_DIR, dir)):
             continue
-        logging.info('Uploading directory : ' + dir)
-        logging_call([RCLONE, 'move', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/'])
+            logging.info('Uploading directory : ' + dir)
+            logging_call([RCLONE, 'move', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/'])
 
 def main():
     logging.info("Disk monitor started")
