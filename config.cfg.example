@@ -1,9 +1,9 @@
 {
   "plexgcd": {
-    "log_path": "/opt/plexgcd/logs/",
-    "start_time": "13:00",
-    "end_time": "23:00",
-    "disk_threshold": "50",
+    "log_path": "/opt/plexgsuite/logs/",
+    "start_time": "23:00",
+    "end_time": "09:00",
+    "disk_threshold": "80",
     "disk_check_path": "/",
     "local_dir": "/data/.local",
     "rclone": "/usr/bin/rclone",
@@ -11,9 +11,9 @@
     "remote_name": "gcd-crypt:"
     }
     "nzbget": {
-    "username": "jake"
-    "password": "$xlvvi5c$"
-    "host": "plex.wiredbridge.uk/nzbget/"
+    "username": ""
+    "password": ""
+    "host": ""
     }
     "smtp": {
     "ip": "",
