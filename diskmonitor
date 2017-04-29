@@ -9,7 +9,7 @@ import json, shutil, logging, time, subprocess, os
 from shutil import disk_usage
 import datetime as dt
 import requests
-from jsonrpc import jsonrpc
+from jsonrpclib import jsonrpc
 
 # Load configuration file and pull in variables
 CONFIG = json.loads(open('config.cfg').read())
