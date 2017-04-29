@@ -1,16 +1,16 @@
 #!/bin/bash
 # Script to upload tv shows and movies to GCD
 # Import common functions
-source /opt/plexgcd/plexgcd.func
+source /opt/plexgsuite/plexgcd.func
 # Import functions
-source /opt/plexgcd/plexgcd.conf
+source /opt/plexgsuite/plexgcd.conf
 
 uploadtv() {
-  rclone move --exclude partial~ --log-file=/opt/plexgcd/logs/rclone-tv-gcd.log -v --transfers 10 --drive-chunk-size=16M /data/.local/tvshows/ gcd-crypt:tvshows/
+  rclone move --exclude partial~ --log-file=/opt/plexgsuite/logs/rclone-tv-gcd.log -v --transfers 10 --drive-chunk-size=16M /data/.local/tvshows/ gcd-crypt:tvshows/
 }
 
 uploadmv() {
-  rclone move --exclude partial~ --log-file=/opt/plexgcd/logs/rclone-movie-gcd.log -v --transfers 10 --drive-chunk-size=16M /data/.local/movies/ gcd-crypt:movies/
+  rclone move --exclude partial~ --log-file=/opt/plexgsuite/logs/rclone-movie-gcd.log -v --transfers 10 --drive-chunk-size=16M /data/.local/movies/ gcd-crypt:movies/
 }
 
 main() {
@@ -26,7 +26,7 @@ main() {
     # Resume nzbget
     resume_nzbget
 
-    rm /opt/plexgcd/uploadgcd.lock
+    rm /opt/plexgsuite/uploadgcd.lock
 }
 
 # Execute functions inside main, will providing locking to avoid multiple scripts running at same time

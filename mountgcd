@@ -1,9 +1,9 @@
 #!/bin/bash
 # Mount GCD using rclone
 # Import common functions
-source /opt/plexgcd/plexgcd.func
+source /opt/plexgsuite/plexgcd.func
 # Import functions
-source /opt/plexgcd/plexgcd.conf
+source /opt/plexgsuite/plexgcd.conf
 
 # Mount Functions
 
@@ -81,7 +81,7 @@ main() {
     sleep 10
 		mount_mediadir
 
-	rm /opt/plexgcd/mountgcd.lock
+	rm /opt/plexgsuite/mountgcd.lock
 }
 
 # Execute main function, will provide logging

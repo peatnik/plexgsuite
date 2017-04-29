@@ -1,9 +1,9 @@
 #!/bin/bash
 # Mount GCD using rclone
 # Import common functions
-source /opt/plexgcd/plexgcd.func
+source /opt/plexgsuite/plexgcd.func
 # Import config
-source /opt/plexgcd/plexgcd.conf
+source /opt/plexgsuite/plexgcd.conf
 
 check_mount() {
 # Check gcd rclone mount, remount if offline, check decrypt path
@@ -39,7 +39,7 @@ main() {
 		
 		logsetup
 		check_mount
-	rm /opt/plexgcd/checkgcd.lock
+	rm /opt/plexgsuite/checkgcd.lock
 }
 
 # Execute main function, will provide logging
