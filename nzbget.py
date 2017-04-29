@@ -3,10 +3,10 @@
 import requests
 from jsonrpclib import jsonrpc
 
-username = 'jake'
-password = '$xlvvi5c$'
+username = ''
+password = ''
 # site address
-host = 'plex.wiredbridge.uk/nzbget/'
+host = '
 
 class Nzbget(object):
     def __init__(self, username, password, host):

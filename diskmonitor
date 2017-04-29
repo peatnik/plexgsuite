@@ -3,17 +3,18 @@
 # Author: Jake Tame
 # Email: jaketame@me.com
 # Desc: Disk monitor that checks to see that disk usage is above a set threshold and upload to GCD via RCLONE
-# Desc: To be run via service
+# Desc: To be run in backgroud, trigger via service ./diskmonitor &
 
 import json, shutil, logging, time, subprocess, os
 from shutil import disk_usage
 import datetime as dt
+import requests
+from jsonrpclib import jsonrpc
 
 # Load configuration file and pull in variables
 CONFIG = json.loads(open('config.cfg').read())
 RCLONE = CONFIG['plexgcd']['rclone']
 RCLONE_TRANSFERS = CONFIG['plexgcd']['rclone_transfers']
-NZBGET = CONFIG['plexgcd']['nzbget']
 DISK_PATH = CONFIG['plexgcd']['disk_check_path']
 LOG_PATH = CONFIG['plexgcd']['log_path']
 LOG_FILE = LOG_PATH + 'diskmonitor.log'
@@ -23,6 +24,10 @@ END_WDW = CONFIG['plexgcd']['end_time']
 LOCAL_DIR = CONFIG['plexgcd']['local_dir']
 REMOTE_DIR = CONFIG['plexgcd']['remote_dir']
 REMOTE_NAME = CONFIG['plexgcd']['remote_name']
+NZB_HOST = CONFIG['nzbget']['host']
+NZB_USER = CONFIG['nzbget']['username']
+NZB_PWORD = CONFIG['nzbget']['password']
+
 # Set logging and default to info
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO,filename=LOG_FILE,format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -41,6 +46,26 @@ def logging_call(popenargs, **kwargs):
     # keep checking stdout/stderr until the child exits
     while process.poll() is None:
         check_output()
+
+class Nzbget(object):
+    def __init__(self, username, password, host):
+        if username and password:
+            authstring = '%s:%s@' % (username, password)
+        else:
+            authstring = ''
+
+        self.url = 'https://%s%s/jsonrpc' % (authstring, host)
+        self.action = jsonrpc.ServerProxy(self.url)
+
+    def pause(self):
+        logging.info('Paused nzbget')
+        return self.action.pause()
+
+    def resume(self):
+        logging.info('Resumed nbzbget')
+        return self.action.resume()
+
+nzbget = Nzbget(host=NZB_HOST, username=NZB_USER, password=NZB_PWORD)
 
 def check_usage():
     # Return percentage of disk usage of mountpoint in config file
@@ -66,35 +91,14 @@ def check_time():
     else:
         return False
 
-def pause_nzbget():
-    command = [NZBGET]
-    result = subprocess.Popen(command)
-    result.communicate()
-
-def resume_nzbget():
-    command = [NZBGET, '-U']
-    result = subprocess.Popen(command)
-    result.communicate()
-
-def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    while True:
-        output = process.stdout.readline()
-        if output == '' and process.poll() is not None:
-            logging.info(output.strip())
-        if output:
-            logging.info(output.strip())
-    rc = process.poll()
-    logging.info("%s" %rc)
-
 def rclone_upload():
 # For each directory under your LOCAL_DIR we are going to upload, will exclude hidden folders
     for dir in os.listdir(LOCAL_DIR):
-        if not dir.startswith('.'):
+        if not dir.startswith('.'):s
             if not os.path.isdir(os.path.join(LOCAL_DIR, dir)):
                 continue
             logging.info('Uploading directory : ' + dir)
-        logging_call([RCLONE, 'copy', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/'])
+        logging_call([RCLONE, 'move', '--transfers', RCLONE_TRANSFERS, '--drive-chunk-size=16M', '--exclude', 'filepart', LOCAL_DIR + '/' + dir + '/', REMOTE_NAME + dir + '/'])
 
 def main():
     logging.info("Disk monitor started")
@@ -117,12 +121,12 @@ while True:
             logging.info("Time %s is within schedule, uploading" % (TIME_NOW) )
             # Pause NZBGet to get best upload speed
             logging.info("Pausing NZBGet for best upload")
-#            pause_nzbget()
+            nzbget.pause()
             # Upload via RCLONE
             rclone_upload()
             # Resume NZBGet
             logging.info("Resuming NZBGet")
-#            resume_nzbget()
+            nzbget.resume()
 
         else:
             # Comparing the start window and the current time to pause all downloading and script until it is within the window
