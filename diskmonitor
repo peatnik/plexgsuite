@@ -21,7 +21,6 @@ THRESHOLD = int(CONFIG['plexgcd']['disk_threshold'])
 START_WDW = CONFIG['plexgcd']['start_time']
 END_WDW = CONFIG['plexgcd']['end_time']
 LOCAL_DIR = CONFIG['plexgcd']['local_dir']
-REMOTE_DIR = CONFIG['plexgcd']['remote_dir']
 REMOTE_NAME = CONFIG['plexgcd']['remote_name']
 NZB_HOST = CONFIG['nzbget']['host']
 NZB_USER = CONFIG['nzbget']['username']
