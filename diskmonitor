@@ -71,7 +71,8 @@ def check_usage():
     (total, used, free) = disk_usage(DISK_PATH)
     logging.debug("Path is %s " % DISK_PATH )
     logging.debug("Raw values are total %s used %s free %s" % (total, used, free) )
-    perc = (float(used) / total) * 100
+    perc1  = (float(free) / total) * 100
+    perc = 100 - free
     logging.debug("Calculation used %s / %s = %s%% " %(used, total, perc) )
     return int(perc)
 
