@@ -74,7 +74,7 @@ def check_usage():
     perc1  = (float(free) / total) * 100
     perc = 100 - free
     logging.debug("Calculation used %s / %s = %s%% " %(used, total, perc) )
-    return int(perc)
+    return perc
 
 def check_time():
     # Check to see if start time is greater than current time but less than the end time for upload window
@@ -130,8 +130,8 @@ while True:
 
         else:
             # Comparing the start window and the current time to pause all downloading and script until it is within the window
-            START = datetime.strptime(START, '%H:%M')
-            NOW = datetime.strptime(TIME, '%H:%M')
+            START = dt.datetime.strptime(START, '%H:%M')
+            NOW = dt.datetime.strptime(TIME, '%H:%M')
             SLEEP_TIME = START - NOW
             logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) )
             logging.debug("Sleeping time is %s and %s in seconds" % (SLEEP_TIME, SLEEP_TIME.seconds) )
