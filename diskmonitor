@@ -130,8 +130,10 @@ while True:
 
         else:
             # Comparing the start window and the current time to pause all downloading and script until it is within the window
-            START = dt.datetime.strptime(START, '%H:%M')
-            NOW = dt.datetime.strptime(TIME, '%H:%M')
+            START_TIME = dt.datetime.strptime(START_WDW,'%H:%M')
+            START = dt.time(START_TIME.hour, START_TIME.minute)
+            NOW_TIME = dt.datetime.now()
+            NOW = dt.time(NOW_TIME.hour, NOW_TIME.minute)
             SLEEP_TIME = START - NOW
             logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) )
             logging.debug("Sleeping time is %s and %s in seconds" % (SLEEP_TIME, SLEEP_TIME.seconds) )
