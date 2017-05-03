@@ -86,7 +86,7 @@ def check_time():
 
     NOW_TIME = dt.datetime.now()
     NOW = dt.time(NOW_TIME.hour, NOW_TIME.minute)
-    if START <= NOW < END:
+    if START >= NOW < END:
         return True
     else:
         return False
@@ -131,13 +131,13 @@ while True:
         else:
             # Comparing the start window and the current time to pause all downloading and script until it is within the window
             NOW = dt.datetime.now()
-            START_TIME = dt.datetime.strptime("00:00",'%H:%M')
+            START_TIME = dt.datetime.strptime(START_WDW,'%H:%M')
             START = NOW.replace(hour=START_TIME.hour, minute=START_TIME.minute)
             SLEEP_TIME = START - NOW
             logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) )
             logging.debug("Sleeping time is %s and %s in seconds" % (SLEEP_TIME, SLEEP_TIME.seconds) )
             # Pause NZBGet to avoid disk filling up and leave paused to get best upload speed, will resume post upload
-            pause_nzbget()
+            nzbget.pause()
             # Sleep time
             time.sleep(SLEEP_TIME.seconds)
 
