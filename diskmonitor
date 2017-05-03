@@ -130,10 +130,9 @@ while True:
 
         else:
             # Comparing the start window and the current time to pause all downloading and script until it is within the window
-            START_TIME = dt.datetime.strptime(START_WDW,'%H:%M')
-            START = dt.time(START_TIME.hour, START_TIME.minute)
-            NOW_TIME = dt.datetime.now()
-            NOW = dt.time(NOW_TIME.hour, NOW_TIME.minute)
+            NOW = dt.datetime.now()
+            START_TIME = dt.datetime.strptime("00:00",'%H:%M')
+            START = NOW.replace(hour=START_TIME.hour, minute=START_TIME.minute)
             SLEEP_TIME = START - NOW
             logging.info("Path is at %s%% / %s%% but outside timewindow, pausing downloads and script until %s" % (USED_PERC, THRESHOLD, START) )
             logging.debug("Sleeping time is %s and %s in seconds" % (SLEEP_TIME, SLEEP_TIME.seconds) )
@@ -144,7 +143,7 @@ while True:
 
     else:
         # Looping until used percentage is above threshold
-        logging.info("Path %s currently at %s%% free" % (DISK_PATH, USED_PERC) )
+        logging.info("Path %s currently at %s%% used" % (DISK_PATH, USED_PERC) )
         logging.debug("Sleeping for 60 seconds")
         # Sleep time loop for 60 seconds
         time.sleep(60)
