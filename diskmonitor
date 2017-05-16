@@ -71,10 +71,9 @@ def check_usage():
     (total, used, free) = disk_usage(DISK_PATH)
     logging.debug("Path is %s " % DISK_PATH )
     logging.debug("Raw values are total %s used %s free %s" % (total, used, free) )
-    perc1  = (float(free) / total) * 100
-    perc = 100 - free
+    perc = (float(free) / total) * 100
     logging.debug("Calculation used %s / %s = %s%% " %(used, total, perc) )
-    return perc
+    return float('{0:.2f}'.format(100 - perc))
 
 def check_time():
     # Check to see if start time is greater than current time but less than the end time for upload window
